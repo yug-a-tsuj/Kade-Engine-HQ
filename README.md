@@ -78,6 +78,7 @@ This game was made with love to Newgrounds and its community. Extra love to Tom 
 
 ### Shoutouts
 - [GWebDev](https://github.com/GrowtopiaFli) - Video Code
+- [PolybiusProxy](https://github.com/polybiusproxy) - MP4 Video Code
 - [Rozebud](https://github.com/ThatRozebudDude) - Ideas (that I stole)
 - [Puyo](https://github.com/puyoxyz) - Setting up appveyor and a lot of other help
 - [Smokey](https://github.com/Smokey555) - telling me that I should do the tricky asset loading
