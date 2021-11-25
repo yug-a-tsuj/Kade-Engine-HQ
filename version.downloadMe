@@ -1,8 +1,8 @@
-1.8;
-- New options menu
-- New animation debug screen
-- Middle scroll
-- Lane transparency
-- Added noteskin support + new circle skin
-- Fixed input on rates
-- Fixed rates on longer maps so they are more stable
+1.6.2;
+- Added the ability to select and modify notes in the editor
+- Added copy and paste (with ctrl z support) while selecting notes
+- Optimized gameplay
+- Optimized the chart editor (less lag on longer songs, and faster load times)
+- Fixed stutter at the start of a song
+- Fixed scroll speed changes so they work when more then one of them exist
+- Modcharts now work on Linux!

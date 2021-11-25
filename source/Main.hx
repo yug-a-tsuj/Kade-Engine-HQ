@@ -1,8 +1,7 @@
 package;
 
-import openfl.display.Bitmap;
 import lime.app.Application;
-#if FEATURE_DISCORD
+#if windows
 import Discord.DiscordClient;
 #end
 import openfl.display.BlendMode;
@@ -27,25 +26,20 @@ class Main extends Sprite
 	var skipSplash:Bool = true; // Whether to skip the flixel splash screen that appears in release mode.
 	var startFullscreen:Bool = false; // Whether to start the game in fullscreen on desktop targets
 
-	public static var bitmapFPS:Bitmap;
-
-	public static var instance:Main;
-
 	public static var watermarks = true; // Whether to put Kade Engine literally anywhere
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
 	public static function main():Void
 	{
-		// quick checks
+
+		// quick checks 
 
 		Lib.current.addChild(new Main());
 	}
 
 	public function new()
 	{
-		instance = this;
-
 		super();
 
 		if (stage != null)
@@ -88,56 +82,35 @@ class Main extends Sprite
 		framerate = 60;
 		#end
 
-		// Run this first so we can see logs.
-		Debug.onInitProgram();
+		#if cpp
+		initialState = Caching;
+		game = new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen);
+		#else
+		game = new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen);
+		#end
+		addChild(game);
+		#if windows
+		DiscordClient.initialize();
 
-		// Gotta run this before any assets get loaded.
-		ModCore.initialize();
-
-		#if !mobile
-		fpsCounter = new KadeEngineFPS(10, 3, 0xFFFFFF);
-		bitmapFPS = ImageOutline.renderImage(fpsCounter, 1, 0x000000, true);
-		bitmapFPS.smoothing = true;
+		Application.current.onExit.add (function (exitCode) {
+			DiscordClient.shutdown();
+		 });
+		 
 		#end
 
-		game = new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen);
-		addChild(game);
-
 		#if !mobile
+		fpsCounter = new FPS(10, 3, 0xFFFFFF);
 		addChild(fpsCounter);
 		toggleFPS(FlxG.save.data.fps);
 		#end
-
-		// Finish up loading debug tools.
-		Debug.onGameStart();
 	}
 
 	var game:FlxGame;
 
-	var fpsCounter:KadeEngineFPS;
+	var fpsCounter:FPS;
 
-	// taken from forever engine, cuz optimization very pog.
-	// thank you shubs :)
-	public static function dumpCache()
-	{
-		///* SPECIAL THANKS TO HAYA
-		@:privateAccess
-		for (key in FlxG.bitmap._cache.keys())
-		{
-			var obj = FlxG.bitmap._cache.get(key);
-			if (obj != null)
-			{
-				Assets.cache.removeBitmapData(key);
-				FlxG.bitmap._cache.remove(key);
-				obj.destroy();
-			}
-		}
-		Assets.cache.clear("songs");
-		// */
-	}
-
-	public function toggleFPS(fpsEnabled:Bool):Void
-	{
+	public function toggleFPS(fpsEnabled:Bool):Void {
+		fpsCounter.visible = fpsEnabled;
 	}
 
 	public function changeFPSColor(color:FlxColor)

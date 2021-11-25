@@ -1,9 +1,10 @@
 package;
 
+import flixel.tweens.FlxEase;
+import flixel.tweens.FlxTween;
+import flixel.system.FlxSound;
 import flixel.FlxG;
 import flixel.FlxObject;
-import flixel.FlxSubState;
-import flixel.math.FlxPoint;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
 
@@ -16,9 +17,8 @@ class GameOverSubstate extends MusicBeatSubstate
 
 	public function new(x:Float, y:Float)
 	{
-		var daStage = PlayState.Stage.curStage;
 		var daBf:String = '';
-		switch (PlayState.boyfriend.curCharacter)
+		switch (PlayState.SONG.player1)
 		{
 			case 'bf-pixel':
 				stageSuffix = '-pixel';
@@ -59,8 +59,9 @@ class GameOverSubstate extends MusicBeatSubstate
 			endBullshit();
 		}
 
-		if (FlxG.save.data.InstantRespawn)
+		if(FlxG.save.data.InstantRespawn)
 		{
+			PlayState.fromDeath = true;
 			LoadingState.loadAndSwitchState(new PlayState());
 		}
 
@@ -69,20 +70,10 @@ class GameOverSubstate extends MusicBeatSubstate
 			FlxG.sound.music.stop();
 
 			if (PlayState.isStoryMode)
-			{
-				GameplayCustomizeState.freeplayBf = 'bf';
-				GameplayCustomizeState.freeplayDad = 'dad';
-				GameplayCustomizeState.freeplayGf = 'gf';
-				GameplayCustomizeState.freeplayNoteStyle = 'normal';
-				GameplayCustomizeState.freeplayStage = 'stage';
-				GameplayCustomizeState.freeplaySong = 'bopeebo';
-				GameplayCustomizeState.freeplayWeek = 1;
 				FlxG.switchState(new StoryMenuState());
-			}
 			else
 				FlxG.switchState(new FreeplayState());
 			PlayState.loadRep = false;
-			PlayState.stageTesting = false;
 		}
 
 		if (bf.animation.curAnim.name == 'firstDeath' && bf.animation.curAnim.curFrame == 12)
@@ -128,8 +119,8 @@ class GameOverSubstate extends MusicBeatSubstate
 			{
 				FlxG.camera.fade(FlxColor.BLACK, 2, false, function()
 				{
+					PlayState.fromDeath = true;
 					LoadingState.loadAndSwitchState(new PlayState());
-					PlayState.stageTesting = false;
 				});
 			});
 		}

@@ -1,22 +1,17 @@
 package;
-
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.animation.FlxBaseAnimation;
-import flixel.graphics.frames.FlxAtlasFrames;
 
 using StringTools;
 
-class StaticArrow extends FlxSprite
+class StaticArrow extends FlxSprite // Stolen from KE 1.7 LMAOOOOOOOOOOO
 {
 	public var modifiedByLua:Bool = false;
 	public var modAngle:Float = 0; // The angle set by modcharts
 	public var localAngle:Float = 0; // The angle to be edited inside here
 
-	public function new(xx:Float, yy:Float)
+	public function new(x:Float, y:Float)
 	{
-		x = xx;
-		y = yy;
 		super(x, y);
 		updateHitbox();
 	}
@@ -27,15 +22,16 @@ class StaticArrow extends FlxSprite
 			angle = localAngle + modAngle;
 		else
 			angle = modAngle;
+		
 		super.update(elapsed);
 
 		if (FlxG.keys.justPressed.THREE)
 		{
-			localAngle += 10;
+			modAngle += 10;
 		}
 	}
 
-	public function playAnim(AnimName:String, ?force:Bool = false):Void
+	public function playAnim(AnimName:String, ?force:Bool = false, ?debug:Bool = false):Void
 	{
 		animation.play(AnimName, force);
 
@@ -43,12 +39,24 @@ class StaticArrow extends FlxSprite
 		{
 			localAngle = 0;
 		}
+
 		updateHitbox();
-		offset.set(frameWidth / 2, frameHeight / 2);
 
-		offset.x -= 54;
-		offset.y -= 56;
+		// Dunno why Kade didn't exclude the pixel notes from this like I did, they don't require an offset and this just made them move around in 1.7
+		if ((AnimName == 'confirm' || AnimName.startsWith('dirCon')) && PlayState.SONG.noteStyle != 'pixel' && PlayState.SONG.noteStyle != 'clubpenguin')
+		{
+			// OFFSETS ARE MEGA STUPID IN HAXEFLIXEL APPARENTLY. WHAT A PAIN IN THE ASS.
+			offset.set(frameWidth / 2, frameHeight / 2);
 
+			offset.x -= 54;
+			offset.y -= 56;
+		}
+		else
+		{
+			centerOffsets();
+		}
+
+		// Kung pow penis
 		angle = localAngle + modAngle;
 	}
 }
