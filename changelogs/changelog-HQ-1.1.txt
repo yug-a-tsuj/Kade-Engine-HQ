@@ -1,4 +1,4 @@
-HQ-1.1;
+WHAT'S NEW:
 - Update Checking
 - Checking for updates occurs in a separate thread so as to not freeze the game if the player has no internet connection
 - Songs remaining in a week are now shown

@@ -91,6 +91,7 @@ class PlayState extends MusicBeatState
 	public static var isStoryMode:Bool = false;
 	public static var storyWeek:Int = 0;
 	public static var storyPlaylist:Array<String> = [];
+	public static var storyLength:Int = 0;
 	public static var storyDifficulty:Int = 1;
 	public static var weekSong:Int = 0;
 	public static var weekScore:Int = 0;
@@ -1386,7 +1387,7 @@ class PlayState extends MusicBeatState
 		}
 		else if (!FlxG.save.data.ghost && songStarted && notes.length != 0)
 		{
-			ghostTapInput(null, data, ana);
+			checkBadInput(null, data, ana);
 			// noteMiss(data, null);
 		}
 	}
@@ -4116,7 +4117,7 @@ class PlayState extends MusicBeatState
 					if (!FlxG.save.data.ghost && notes.length != 0)
 					{
 						trace(unspawnNotes.length);
-						ghostTapInput(pressArray);
+						checkBadInput(pressArray);
 					}
 					for (coolNote in possibleNotes)
 					{
@@ -4149,7 +4150,7 @@ class PlayState extends MusicBeatState
 				else if (!FlxG.save.data.ghost && notes.length != 0)
 				{
 					trace(unspawnNotes.length);
-					ghostTapInput(pressArray);
+					checkBadInput(pressArray);
 				}
 			}
 
@@ -4276,7 +4277,7 @@ class PlayState extends MusicBeatState
 		// h
 	}
 
-	function ghostTapInput(pressArray:Array<Bool>, ?data:Int, ?ana:Ana)
+	function checkBadInput(pressArray:Array<Bool>, ?data:Int, ?ana:Ana)
 	{
 		var p1Notes = [];
 		if (FlxG.save.data.missMs < 1010)

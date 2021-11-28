@@ -348,6 +348,7 @@ class StoryMenuState extends MusicBeatState
 			}
 
 			PlayState.storyPlaylist = weekData()[curWeek];
+			PlayState.storyLength = PlayState.storyPlaylist.length;
 			PlayState.isStoryMode = true;
 			selectedWeek = true;
 
