@@ -1575,15 +1575,69 @@ class PlayState extends MusicBeatState
 		#end
 		var daBeats:Int = 0; // Not exactly representative of 'daBeats' lol, just how much it has looped
 
+		var bpmChanges:Array<String> = [];
+
+		for (i in SONG.eventObjects)
+		{
+			if (i.type == "BPM Change" && i.position != 0)
+				bpmChanges.push(Std.string(i.position + ";" + i.value));
+		}
+
+		trace(bpmChanges);
+
+		var curBPM = SONG.bpm;
+
+		var lastBPMChange:Array<Float> = [0, 0];
+
 		for (section in noteData)
 		{
 			var coolSection:Int = Std.int(section.lengthInSteps / 4);
 
 			for (songNotes in section.sectionNotes)
 			{
+				var nearestBPMChange:Array<Float> = null;
+
+				if (bpmChanges.length > 0)
+				{
+					var rawData = bpmChanges[0].split(';');
+					var pos = Std.parseFloat(rawData[0]);
+					// Kade out here makin shit hard (but he cute tho so it don't matter :flushed:)
+					// Anyways convert BPM change beat to milliseconds in the song because we need it later
+					// It's just the inverse of getting the beat. Basically just do the ms -> bpm conversion backwards lol.
+					var bpmChangeMS = (pos - lastBPMChange[1]) * 1000 / (curBPM/60) + lastBPMChange[0];
+					nearestBPMChange = [pos, Std.parseFloat(rawData[1]), bpmChangeMS];
+				}
+
 				var daStrumTime:Float = songNotes[0] + FlxG.save.data.offset + songOffset;
 				if (daStrumTime < 0)
 					daStrumTime = 0;
+
+				// I'M SO FUCKIN SMART UGHHH I'M LIKE A REGULAR MEGAMIND OVER HERE
+				// slow maths (it took me a good hour lmao, I figured it out mostly thanks to how SNIFF handles BPM changes)
+				// I don't even know why I wanted to fix this lol barely anyone uses quantization. I suppose it was just for the challenge.
+				// Basically just adds the beat at which the BPM changed last and recounts the beats using the new BPM. If that makes sense.
+				// TODO: kinda fucky with a bunch of BPM changes. Solution: cry about it for now
+				var daNoteBeatStrum = lastBPMChange[1] + (curBPM/60) * (daStrumTime - lastBPMChange[0]) / 1000;
+
+				if (nearestBPMChange != null && nearestBPMChange[0] < daNoteBeatStrum)
+				{
+					trace("BPM CHANGE TO "
+						+ curBPM
+						+ " AT "
+						+ nearestBPMChange[2]
+						+ " MS (BEAT " 
+						// Just giving my shitty math a test. Works surprisingly well lmao.
+						+ (lastBPMChange[1] + (curBPM / 60) * (nearestBPMChange[2] - lastBPMChange[0]) / 1000)
+						+ ")");
+					bpmChanges.shift();
+					curBPM = nearestBPMChange[1];
+					lastBPMChange = [nearestBPMChange[2], nearestBPMChange[0]];
+					// Fix for BPM change (in case the change happened a few beats before this note is supposed to be hit)
+					daNoteBeatStrum = lastBPMChange[1] + (curBPM / 60) * (daStrumTime - lastBPMChange[0]) / 1000;
+				}
+
+				// Technically speaking with all this effort I put into BPM changes I could just calculate the strumTime changes in-game rather than in the chart editor but also fuck you
+
 				var daNoteData:Int = Std.int(songNotes[1]);
 
 				var gottaHitNote:Bool = section.mustHitSection;
@@ -1599,7 +1653,7 @@ class PlayState extends MusicBeatState
 				else
 					oldNote = null;
 
-				var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote);
+				var swagNote:Note = new Note(daStrumTime, daNoteData, oldNote, false, false, false, daNoteBeatStrum);
 
 				if ((PlayStateChangeables.Optimize)
 					&& ((gottaHitNote && FlxG.save.data.playEnemy) || (!gottaHitNote && !FlxG.save.data.playEnemy)))
